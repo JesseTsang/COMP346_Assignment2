@@ -1,3 +1,4 @@
+package Task1;
 // Import (aka include) some stuff.
 import common.*;
 
@@ -266,7 +267,6 @@ public class BlockManager
 		{
 			phase1();
 
-
 			try
 			{
 				for(int i = 0; i < siThreadSteps; i++)
@@ -276,15 +276,15 @@ public class BlockManager
 					// [s] - means ordinay slot of a stack
 					// (s) - current top of the stack
 					for(int s = 0; s < soStack.getISize(); s++)
+					{
 						System.out.print
 						(
 							(s == BlockManager.soStack.getITop() ? "(" : "[") +
 							BlockManager.soStack.getAt(s) +
 							(s == BlockManager.soStack.getITop() ? ")" : "]")
-						);
-
+						);	
+					}
 					System.out.println(".");
-
 				}
 			}
 			catch(Exception e)

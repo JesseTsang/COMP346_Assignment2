@@ -1,3 +1,4 @@
+package Task1;
 /**
  * Class BlockStack
  * Implements character block stack and operations upon it.
@@ -24,20 +25,20 @@ class BlockStack
 	/**
 	 * Current size of the stack
 	 */
-	public int iSize = DEFAULT_SIZE;
+	private int iSize = DEFAULT_SIZE;
 
 	/**
 	 * Current top of the stack
 	 */
-	public int iTop  = 3;
+	private int iTop  = 3;
 
 	/**
 	 * stack[0:5] with four defined values
 	 */
-	public char acStack[] = new char[] {'a', 'b', 'c', 'd', '$', '$'};
+	private char acStack[] = new char[] {'a', 'b', 'c', 'd', '$', '$'};
 	
 	//Stack access counter
-	public int accessCounter = 0;
+	private int accessCounter = 0;
 
 	/**
 	 * Empty constructor (Default)
@@ -76,6 +77,7 @@ class BlockStack
 	 */
 	public char pick()
 	{
+		accessCounter++;
 		return this.acStack[this.iTop];
 	}
 
@@ -85,6 +87,7 @@ class BlockStack
 	 */
 	public char getAt(final int piPosition)
 	{
+		accessCounter++;
 		return this.acStack[piPosition];
 	}
 
@@ -94,6 +97,7 @@ class BlockStack
 	public void push(final char pcBlock)
 	{
 		this.acStack[++this.iTop] = pcBlock;
+		accessCounter++;
 	}
 
 	/**
@@ -104,6 +108,7 @@ class BlockStack
 	{
 		char cBlock = this.acStack[this.iTop];
 		this.acStack[this.iTop--] = '$'; // Leave prev. value undefined
+		accessCounter++;
 		return cBlock;
 	}
 	
@@ -130,9 +135,5 @@ class BlockStack
 	{
 		return accessCounter;
 	}
-	
-
-
 }
-
 // EOF
