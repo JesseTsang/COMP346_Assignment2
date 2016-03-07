@@ -99,7 +99,7 @@ class BlockStack
 	public char getAt(final int piPosition) throws UserDefinedException
 	{
 		accessCounter++;
-		if(piPosition < iSize - 1)
+		if(piPosition <= iSize - 1)
 		{	
 			return this.acStack[piPosition];	
 		}

@@ -108,7 +108,7 @@ public class Semaphore
 	 */
 	public synchronized void P()
 	{
-		this.Wait();
+		this.Wait(); //-- iValue, Acquire permit
 	}
 
 	/**
@@ -116,7 +116,7 @@ public class Semaphore
 	 */
 	public synchronized void V()
 	{
-		this.Signal();
+		this.Signal(); //++ iValue, Release permit
 	}
 }
 

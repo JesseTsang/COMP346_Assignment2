@@ -1,4 +1,6 @@
-package task3;
+package task5;
+import java.util.concurrent.CountDownLatch;
+
 // Import (aka include) some stuff.
 import common.*;
 
@@ -33,7 +35,7 @@ public class BlockManager
 	/**
 	 * For atomicity
 	 */
-	private static Semaphore mutex = new Semaphore(1); //Binary Semaphore
+	private static Semaphore mutex = new Semaphore(1);
 
 	/*
 	 * For synchronization
@@ -43,13 +45,15 @@ public class BlockManager
 	 * s1 is to make sure phase I for all is done before any phase II begins
 	 */
 	//private static Semaphore s1 = new Semaphore(...);
+	
+	//CountDownLatch
+	private static CountDownLatch latch = new CountDownLatch(10); 
 
 	/**
 	 * s2 is for use in conjunction with Thread.turnTestAndSet() for phase II proceed
 	 * in the thread creation order
 	 */
-	//private static Semaphore s2 = new Semaphore(...);
-
+	private static Semaphore s2 = new Semaphore(1);
 
 	// The main()
 	public static void main(String[] argv)
@@ -85,17 +89,17 @@ public class BlockManager
 				aStackProbers[i] = new CharStackProber();
 
 			System.out.println("main(): CharStackProber threads have been created: " + NUM_PROBERS);
-
+			
 			/*
 			 * Twist 'em all
 			 */
 			ab1.start();
 			aStackProbers[0].start();
 			rb1.start();
-			aStackProbers[1].start();
+			aStackProbers[1].start();		
 			ab2.start();
 			aStackProbers[2].start();
-			rb2.start();
+			rb2.start();		
 			ab3.start();
 			aStackProbers[3].start();
 			rb3.start();
@@ -140,7 +144,6 @@ public class BlockManager
 		}
 	} // main()
 
-
 	/**
 	 * Inner AcquireBlock thread class.
 	 */
@@ -158,6 +161,7 @@ public class BlockManager
 
 			mutex.P(); //Acquire permit
 			phase1();
+			latch.countDown();
 
 			try
 			{
@@ -170,6 +174,7 @@ public class BlockManager
 					"AcquireBlock thread [TID=" + this.iTID + "] has obtained Ms block " + this.cCopy +
 					" from position " + (soStack.getITop() + 1) + "."
 				);
+
 
 				System.out.println
 				(
@@ -190,15 +195,31 @@ public class BlockManager
 			}
 			finally
 			{
-				mutex.V();
+				mutex.V(); //Release permit
 			}
-
+			
+			try 
+			{
+				latch.await();
+			} 
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			s2.P(); //Acquire Permit
+			while(!turnTestAndSet())
+			{
+				s2.V(); //Not its turn, so release Permit
+				break; //Wait for next turn
+			}
 			phase2();
+			s2.V(); //Release permit, because phase2 of this thread is done.
 
 			System.out.println("AcquireBlock thread [TID=" + this.iTID + "] terminates.");
 		}
 	} // class AcquireBlock
-
 
 	/**
 	 * Inner class ReleaseBlock.
@@ -214,8 +235,9 @@ public class BlockManager
 		{
 			System.out.println("ReleaseBlock thread [TID=" + this.iTID + "] starts executing.");
 
-			mutex.P(); //Acquire Permit
+			mutex.P(); //Acquire permit
 			phase1();
+			latch.countDown();
 
 			try
 			{
@@ -251,15 +273,31 @@ public class BlockManager
 			}
 			finally
 			{
-				mutex.V(); //Release Permit
+				mutex.V(); //Release permit
+			}
+			
+			try 
+			{
+				latch.await();
+			} 
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
+			s2.P(); //Acquire Permit
+			while(!turnTestAndSet())
+			{
+				s2.V(); //Not its turn, so release Permit
+				break;
+			}
 			phase2();
+			s2.V(); //Release permit, because phase2 of this thread is done.
 
 			System.out.println("ReleaseBlock thread [TID=" + this.iTID + "] terminates.");
 		}
 	} // class ReleaseBlock
-
 
 	/**
 	 * Inner class CharStackProber to dump stack contents.
@@ -268,8 +306,9 @@ public class BlockManager
 	{
 		public void run()
 		{
-			mutex.P(); //Acquire Permit
+			mutex.P(); //Acquire permit.
 			phase1();
+			latch.countDown();
 
 			try
 			{
@@ -298,13 +337,30 @@ public class BlockManager
 			}
 			finally
 			{
-				mutex.V(); //Release Permit
+				mutex.V(); //Release permit
 			}
 
+			try 
+			{
+				latch.await();
+			} 
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			s2.P(); //Acquire Permit
+			while(!turnTestAndSet())
+			{
+				s2.V(); //Not its turn, so release Permit
+				break;
+			}
 			phase2();
+			s2.V(); //Release permit, because phase2 of this thread is done.
+
 		}
 	} // class CharStackProber
-
 
 	/**
 	 * Outputs exception information to STDERR
