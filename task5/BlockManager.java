@@ -212,7 +212,7 @@ public class BlockManager
 			while(!turnTestAndSet())
 			{
 				s2.V(); //Not its turn, so release Permit
-				break; //Wait for next turn
+				yield(); //Wait for next turn
 			}
 			phase2();
 			s2.V(); //Release permit, because phase2 of this thread is done.
@@ -290,7 +290,7 @@ public class BlockManager
 			while(!turnTestAndSet())
 			{
 				s2.V(); //Not its turn, so release Permit
-				break;
+				yield();
 			}
 			phase2();
 			s2.V(); //Release permit, because phase2 of this thread is done.
@@ -354,7 +354,7 @@ public class BlockManager
 			while(!turnTestAndSet())
 			{
 				s2.V(); //Not its turn, so release Permit
-				break;
+				yield();
 			}
 			phase2();
 			s2.V(); //Release permit, because phase2 of this thread is done.
